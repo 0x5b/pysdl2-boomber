@@ -1,0 +1,8 @@
+.venv/*
+
+# emacs temporary files
+\#*\#
+.\#*
+
+# vim temporary files
+*~
