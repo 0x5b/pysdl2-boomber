@@ -49,6 +49,7 @@ class Bomb(Tile):
     def __init__(self, world, sprite, posx, posy):
         super(Bomb, self).__init__(world, sprite, posx, posy)
 
+        self.collisiondata = components.CollisionData(posx, posy)
         self.timer = components.Timer(2)
         self.timer.callback = "explode"
         self.destroydata = components.DestroyData()
