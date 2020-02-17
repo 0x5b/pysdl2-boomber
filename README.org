@@ -1,0 +1,5 @@
+* "Boomber"
+This is an attempt to write an application in Component-Oriented Programming (COP) style.
+* Dependencies
+You will need the following libraries installed:
+- PySDL2
