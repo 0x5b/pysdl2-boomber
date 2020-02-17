@@ -9,6 +9,7 @@ from boomber.components import (
     CollisionData,
     ControlData,
     DestroyData,
+    PlayerData,
     Timer,
     Velocity,
 )
@@ -36,18 +37,20 @@ class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
 class MovementSystem(sdl2.ext.Applicator):
     def __init__(self):
         super(MovementSystem, self).__init__()
-        self.componenttypes = Velocity, CollisionData, sdl2.ext.Sprite
+        self.componenttypes = (Velocity, CollisionData,
+                               PlayerData, sdl2.ext.Sprite,)
 
     def process(self, world, componentsets):
-        for velocity, collisiondata, sprite in componentsets:
+        for velocity, collisiondata, playerdata, sprite in componentsets:
             collisiondata.x_in_world = sprite.x
             collisiondata.y_in_world = sprite.y
 
             sprite.x += velocity.vx
             sprite.y += velocity.vy
 
-            velocity.vx = 0
-            velocity.vy = 0
+            if not playerdata.ai:
+                velocity.vx = 0
+                velocity.vy = 0
 
 
 class CollisionSystem(sdl2.ext.Applicator):
@@ -93,6 +96,11 @@ class CollisionSystem(sdl2.ext.Applicator):
             collision, _ = self._overlap(pos, sprite, self.explosion_area)
             if collision:
                 destroydata.is_alive = False
+
+            collision, enemy = self._overlap(pos, sprite, self.enemies)
+            if collision:
+                enemy.velocity.vx = -enemy.velocity.vx
+                enemy.velocity.vy = -enemy.velocity.vy
 
 
 class TimerSystem(sdl2.ext.Applicator):

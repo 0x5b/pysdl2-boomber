@@ -13,7 +13,9 @@ from boomber.resources.textures import TextureSpriteFactory
 def create_map(world, level):
 
     factory = TextureSpriteFactory()
+    player = None
     enemies = []
+    velocity = [(5, 0), (0, 5), (5, 0), (0, 5)]
     start_position = 50
     step = 40
 
@@ -34,6 +36,7 @@ def create_map(world, level):
                 if ch == "e":
                     sp_enemy = factory.get_color_texture("red")
                     enemy = entities.Enemy(world, sp_enemy, x, y)
+                    enemy.velocity.vx, enemy.velocity.vy = velocity.pop(0)
                     enemies.append(enemy)
                 x += step
             y += step
