@@ -5,6 +5,7 @@ import time
 
 import sdl2.ext
 
+from boomber import Game
 from boomber.components import (
     CollisionData,
     ControlData,
@@ -19,10 +20,10 @@ from boomber.entities import (
     Explosion,
     Player,
 )
-from boomber.resources.textures import TextureSpriteFactory, step
+from boomber.resources.textures import step
 
 
-FACTORY = TextureSpriteFactory()
+game = Game()
 
 
 class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
@@ -54,16 +55,10 @@ class MovementSystem(sdl2.ext.Applicator):
 
 
 class CollisionSystem(sdl2.ext.Applicator):
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(CollisionSystem, cls).__new__(cls)
-        return cls.instance
 
     def __init__(self):
         super(CollisionSystem, self).__init__()
         self.componenttypes = CollisionData, DestroyData, sdl2.ext.Sprite
-        self.player = None
-        self.enemies = None
         self.explosion_area = []
 
     def _overlap(self, pos, sprite, items):
@@ -86,18 +81,18 @@ class CollisionSystem(sdl2.ext.Applicator):
     def process(self, world, componentsets):
         for pos, destroydata, sprite in componentsets:
 
-            collision, _ = self._overlap(pos, sprite, [self.player])
+            collision, _ = self._overlap(pos, sprite, [game.player])
             if collision:
                 if isinstance(destroydata.entity, Enemy):
-                    self.player.destroydata.is_alive = False
-                self.player.sprite.x = self.player.collisiondata.x_in_world
-                self.player.sprite.y = self.player.collisiondata.y_in_world
+                    game.player.destroydata.is_alive = False
+                game.player.sprite.x = game.player.collisiondata.x_in_world
+                game.player.sprite.y = game.player.collisiondata.y_in_world
 
             collision, _ = self._overlap(pos, sprite, self.explosion_area)
             if collision:
                 destroydata.is_alive = False
 
-            collision, enemy = self._overlap(pos, sprite, self.enemies)
+            collision, enemy = self._overlap(pos, sprite, game.enemies)
             if collision:
                 enemy.velocity.vx = -enemy.velocity.vx
                 enemy.velocity.vy = -enemy.velocity.vy
@@ -106,7 +101,6 @@ class CollisionSystem(sdl2.ext.Applicator):
 class TimerSystem(sdl2.ext.Applicator):
     def __init__(self):
         super(TimerSystem, self).__init__()
-        self.collision_system = CollisionSystem()
         self.componenttypes = Timer, DestroyData, sdl2.ext.Sprite
 
     def process(self, world, componentsets):
@@ -116,29 +110,28 @@ class TimerSystem(sdl2.ext.Applicator):
                     destroydata.is_alive = False
                 if timer.callback == "explode":
                     for x, y in ((-step, 0), (0, -step), (step, 0), (0, step), (0, 0)):
-                        sp_explosion = FACTORY.get_color_texture("yellow")
+                        sp_explosion = game.sprite_factory.get_color_texture("yellow")
                         e = Explosion(world, sp_explosion,
                                       sprite.x + x, sprite.y + y)
-                        self.collision_system.explosion_area.append(e)
+                        game.collision_system.explosion_area.append(e)
                     destroydata.is_alive = False
 
 
 class DestroySystem(sdl2.ext.Applicator):
     def __init__(self):
         super(DestroySystem, self).__init__()
-        self.collision_system = CollisionSystem()
         self.componenttypes = DestroyData, sdl2.ext.Sprite
 
     def process(self, world, componentsets):
         for destroydata, sprite in componentsets:
             if not destroydata.is_alive and destroydata.is_destroyable:
 
-                if destroydata.entity in self.collision_system.explosion_area:
-                    self.collision_system.explosion_area.remove(destroydata.entity)
+                if destroydata.entity in game.collision_system.explosion_area:
+                    game.collision_system.explosion_area.remove(destroydata.entity)
 
-                if destroydata.entity in self.collision_system.enemies:
-                    self.collision_system.enemies.remove(destroydata.entity)
-                    if not len(self.collision_system.enemies):
+                if destroydata.entity in game.enemies:
+                    game.enemies.remove(destroydata.entity)
+                    if not game.enemies:
                         print("YOU WON!")
                         sys.exit(0)
 
@@ -171,6 +164,6 @@ class ControlSystem(sdl2.ext.Applicator):
                 velocity.vx = step
                 controldata.event = None
             elif controldata.event == sdl2.SDLK_SPACE:
-                sp_bomb = FACTORY.get_color_texture("darkred")
+                sp_bomb = game.sprite_factory.get_color_texture("darkred")
                 Bomb(world, sp_bomb, sprite.x, sprite.y)
                 controldata.event = None
