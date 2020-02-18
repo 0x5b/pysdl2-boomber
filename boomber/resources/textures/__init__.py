@@ -3,7 +3,10 @@
 import sdl2.ext
 
 
-TEXTURE_SIZE = (40, 40)
+step = 65
+
+TEXTURE_SIZE = (step, step)
+RESOURCES = sdl2.ext.Resources(__file__)
 
 color_map = {
     "black": sdl2.ext.Color(0, 0, 0),
@@ -16,6 +19,12 @@ color_map = {
     "yellow": sdl2.ext.Color(255, 255, 0),
 }
 
+direction_map = {
+    "right": "right.png",
+    "up": "up.png",
+    "down": "down.png",
+}
+
 
 class TextureSpriteFactory(object):
     factory = None
@@ -26,8 +35,10 @@ class TextureSpriteFactory(object):
         return cls.instance
 
     def __init__(self):
-        super(TextureSpriteFactory, self).__init__()
         self.factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
 
     def get_color_texture(self, color):
         return self.factory.from_color(color_map[color], size=TEXTURE_SIZE)
+
+    def get_texture(self, direction):
+        return self.factory.from_image(RESOURCES.get_path(direction_map[direction]))

@@ -19,7 +19,7 @@ from boomber.entities import (
     Explosion,
     Player,
 )
-from boomber.resources.textures import TextureSpriteFactory
+from boomber.resources.textures import TextureSpriteFactory, step
 
 
 FACTORY = TextureSpriteFactory()
@@ -115,7 +115,7 @@ class TimerSystem(sdl2.ext.Applicator):
                 if timer.callback == "delete":
                     destroydata.is_alive = False
                 if timer.callback == "explode":
-                    for x, y in ((-40, 0), (0, -40), (40, 0), (0, 40), (0, 0)):
+                    for x, y in ((-step, 0), (0, -step), (step, 0), (0, step), (0, 0)):
                         sp_explosion = FACTORY.get_color_texture("yellow")
                         e = Explosion(world, sp_explosion,
                                       sprite.x + x, sprite.y + y)
@@ -159,16 +159,16 @@ class ControlSystem(sdl2.ext.Applicator):
             if not controldata.event:
                 break
             if controldata.event == sdl2.SDLK_UP:
-                velocity.vy = -40
+                velocity.vy = -step
                 controldata.event = None
             elif controldata.event == sdl2.SDLK_DOWN:
-                velocity.vy = 40
+                velocity.vy = step
                 controldata.event = None
             elif controldata.event == sdl2.SDLK_LEFT:
-                velocity.vx = -40
+                velocity.vx = -step
                 controldata.event = None
             elif controldata.event == sdl2.SDLK_RIGHT:
-                velocity.vx = 40
+                velocity.vx = step
                 controldata.event = None
             elif controldata.event == sdl2.SDLK_SPACE:
                 sp_bomb = FACTORY.get_color_texture("darkred")

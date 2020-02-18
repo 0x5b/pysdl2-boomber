@@ -7,7 +7,7 @@ import sdl2.ext
 from boomber import entities
 from boomber import systems
 
-from boomber.resources.textures import TextureSpriteFactory
+from boomber.resources.textures import TextureSpriteFactory, step
 
 
 def create_map(world, level):
@@ -15,9 +15,8 @@ def create_map(world, level):
     factory = TextureSpriteFactory()
     player = None
     enemies = []
-    velocity = [(3, 0), (0, 5), (4, 0), (0, 5), (5, 0), (0, 5)]
+    velocity = [(4, 0), (0, 5), (4, 0), (0, 5), (5, 0), (0, 5)]
     start_position = 50
-    step = 40
 
     with open(os.path.join("boomber", "resources", "levels", str(level))) as f:
         y = start_position
@@ -34,9 +33,13 @@ def create_map(world, level):
                     sp_player = factory.get_color_texture("blue")
                     player = entities.Player(world, sp_player, x, y)
                 if ch == "e":
-                    sp_enemy = factory.get_color_texture("red")
+                    vx, vy = velocity.pop(0)
+                    if vy == 0:
+                        sp_enemy = factory.get_texture("right")
+                    else:
+                        sp_enemy = factory.get_texture("down")
                     enemy = entities.Enemy(world, sp_enemy, x, y)
-                    enemy.velocity.vx, enemy.velocity.vy = velocity.pop(0)
+                    enemy.velocity.vx, enemy.velocity.vy = vx, vy
                     enemies.append(enemy)
                 x += step
             y += step
@@ -47,7 +50,7 @@ def create_map(world, level):
 def run():
     sdl2.ext.init()
 
-    window = sdl2.ext.Window("Boomber", size=(860, 600))
+    window = sdl2.ext.Window("Boomber", size=(1335, 900))
     world = sdl2.ext.World()
 
     timer_system = systems.TimerSystem()
