@@ -24,7 +24,7 @@ class Game:
     def __init__(self, window=None, systems=None):
         sdl2.ext.init()
 
-        self._window = window or sdl2.ext.Window("Boomber", size=(1335, 900))
+        self._window = window or sdl2.ext.Window("OK, Boomber", size=(1335, 900))
         self._world = sdl2.ext.World()
         self._systems = systems or {}
         self._sprite_factory = TextureSpriteFactory()
