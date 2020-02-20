@@ -24,10 +24,12 @@ class Game:
     def __init__(self, window=None, systems=None):
         sdl2.ext.init()
 
-        self._window = window or sdl2.ext.Window("OK, Boomber", size=(1335, 900))
+        self._window = window or sdl2.ext.Window("OK, Boomber",
+                                                 size=(1335, 900))
         self._world = sdl2.ext.World()
         self._systems = systems or {}
-        self._sprite_factory = TextureSpriteFactory()
+        self._sprite_factory = TextureSpriteFactory(
+            self._systems.get("spriterenderer"))
 
         for system in self._systems.values():
             self.world.add_system(system)
@@ -48,17 +50,18 @@ class Game:
                                                 sdl2.SDLK_LEFT, sdl2.SDLK_RIGHT,
                                                 sdl2.SDLK_SPACE):
                         self.player.controldata.event = event.key.keysym.sym
-            sdl2.SDL_Delay(10)
             self.world.process()
+            sdl2.SDL_Delay(10)
         return 0
 
     def create_map(self):
 
-        velocity = [(4, 0), (0, 5), (4, 0), (0, 5), (5, 0), (0, 5)]
+        velocity = [(-3, 0), (0, 4), (-4, 0), (0, 4), (-5, 0), (0, 4)]
         start_position = 50
         step = 65
 
         path = os.path.join("boomber", "resources", "levels", str(self.level))
+        # path = os.path.join("boomber", "resources", "levels", "test")
         with open(path) as f:
             y = start_position
             for line in f:
@@ -66,11 +69,11 @@ class Game:
                 for ch in line:
                     if ch == "x":
                         Block(self.world,
-                              self.sprite_factory.get_color_texture("grey"),
+                              self.sprite_factory.get_texture("wall.png"),
                               x, y, False)
                     if ch == "b":
                         Block(self.world,
-                              self.sprite_factory.get_color_texture("silver"),
+                              self.sprite_factory.get_texture("block.png"),
                               x, y, True)
                     if ch == "p":
                         self.player = Player(
@@ -79,9 +82,9 @@ class Game:
                     if ch == "e":
                         vx, vy = velocity.pop(0)
                         if vy == 0:
-                            sp_enemy = self.sprite_factory.get_texture("right")
+                            sp_enemy = self.sprite_factory.get_texture("right.png")
                         else:
-                            sp_enemy = self.sprite_factory.get_texture("down")
+                            sp_enemy = self.sprite_factory.get_texture("down.png")
                         enemy = Enemy(self.world, sp_enemy, x, y)
                         enemy.velocity.vx, enemy.velocity.vy = vx, vy
                         self.enemies.append(enemy)

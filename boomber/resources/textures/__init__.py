@@ -29,11 +29,11 @@ direction_map = {
 class TextureSpriteFactory(object):
     factory = None
 
-    def __init__(self):
-        self.factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
+    def __init__(self, renderer):
+        self.factory = sdl2.ext.SpriteFactory(sdl2.ext.TEXTURE, renderer=renderer)
 
     def get_color_texture(self, color):
         return self.factory.from_color(color_map[color], size=TEXTURE_SIZE)
 
-    def get_texture(self, direction):
-        return self.factory.from_image(RESOURCES.get_path(direction_map[direction]))
+    def get_texture(self, name):
+        return self.factory.from_image(RESOURCES.get_path(name))

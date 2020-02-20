@@ -18,7 +18,7 @@ def run():
     game_systems["movement_system"] = systems.MovementSystem()
     game_systems["collision_system"] = systems.CollisionSystem()
     game_systems["control_system"] = systems.ControlSystem()
-    game_systems["spriterenderer"] = systems.SoftwareRenderer(window)
+    game_systems["spriterenderer"] = systems.TextureRenderer(window)
 
     game = Game(window=window, systems=game_systems)
     game.start()

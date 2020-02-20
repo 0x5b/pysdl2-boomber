@@ -3,6 +3,7 @@
 import sys
 import time
 
+import sdl2
 import sdl2.ext
 
 from boomber import Game
@@ -26,13 +27,13 @@ from boomber.resources.textures import step
 game = Game()
 
 
-class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
+class TextureRenderer(sdl2.ext.TextureSpriteRenderSystem):
     def __init__(self, window):
-        super(SoftwareRenderer, self).__init__(window)
+        super(TextureRenderer, self).__init__(window)
 
     def render(self, comps):
-        sdl2.ext.fill(self.surface, sdl2.ext.Color(0, 0, 0))
-        super(SoftwareRenderer, self).render(comps)
+        self._renderer.clear()
+        super(TextureRenderer, self).render(comps)
 
 
 class MovementSystem(sdl2.ext.Applicator):
@@ -96,6 +97,7 @@ class CollisionSystem(sdl2.ext.Applicator):
             if collision:
                 enemy.velocity.vx = -enemy.velocity.vx
                 enemy.velocity.vy = -enemy.velocity.vy
+                enemy.sprite.flip = 0 if enemy.sprite.flip else 1
 
 
 class TimerSystem(sdl2.ext.Applicator):
@@ -164,6 +166,6 @@ class ControlSystem(sdl2.ext.Applicator):
                 velocity.vx = step
                 controldata.event = None
             elif controldata.event == sdl2.SDLK_SPACE:
-                sp_bomb = game.sprite_factory.get_color_texture("darkred")
+                sp_bomb = game.sprite_factory.get_texture("bomb.png")
                 Bomb(world, sp_bomb, sprite.x, sprite.y)
                 controldata.event = None
