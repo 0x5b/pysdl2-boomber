@@ -32,6 +32,8 @@ class DestroyData(object):
 class PlayerData(object):
     def __init__(self, ai=True):
         self.ai = ai
+        self.max_bombs = 1
+        self.max_range = 1
 
 
 class ControlData(object):

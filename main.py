@@ -13,7 +13,7 @@ def run():
     window = sdl2.ext.Window("Boomber", size=(1335, 900))
 
     game_systems = {}
-    game_systems["timer_system"] = systems.TimerSystem()
+    game_systems["timer_system"] = systems.TimerCallbackSystem()
     game_systems["destroy_system"] = systems.DestroySystem()
     game_systems["movement_system"] = systems.MovementSystem()
     game_systems["collision_system"] = systems.CollisionSystem()
