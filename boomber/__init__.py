@@ -121,7 +121,7 @@ class Game:
                     if ch == "p":
                         self.player = Player(
                             self.world,
-                            self.sprite_factory.get_color_texture("blue"), x, y)
+                            self.sprite_factory.get_texture("idle.png"), x, y)
                     if ch == "e":
                         vx, vy = velocity.pop(0)
                         if vy == 0:
