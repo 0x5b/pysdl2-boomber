@@ -25,7 +25,7 @@ class Game:
         sdl2.ext.init()
 
         self.player = None
-        self.level = 1
+        self.level = 0
         self.enemies = []
         self.bombs = []
         self.explosion_area = []
@@ -47,12 +47,15 @@ class Game:
             self.bombs.append(Bomb(self.world, sp_bomb, x, y))
 
     def explode(self, center_x, center_y):
-        for r in range(1, self.player.playerdata.max_range + 1):
+        for r in range(1, self.player.playerdata.max_range * 2 + 1):
+            r = r / 2.0
             for x, y in ((-step * r, 0), (0, -step * r),
                          (step * r, 0), (0, step * r), (0, 0)):
-                sp_explosion = self.sprite_factory.get_color_texture("yellow")
+                sp_explosion = self.sprite_factory.get_texture("explosion.png")
+
+                # sp_explosion = self.sprite_factory.get_color_texture("yellow")
                 e = Explosion(self.world, sp_explosion,
-                              center_x + x, center_y + y)
+                              center_x + round(x), center_y + round(y))
                 self.explosion_area.append(e)
 
     def process(self):
@@ -63,8 +66,8 @@ class Game:
                 self.stop("game over!")
             if e in self.enemies:
                 self.enemies.remove(e)
-                if not self.enemies:
-                    self.stop("you won!")
+                # if not self.enemies:
+                    # self.stop("you won!")
             if e in self.bombs:
                 self.bombs.remove(e)
             self.world.delete(e)

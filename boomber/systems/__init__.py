@@ -21,13 +21,37 @@ from boomber.resources.textures import step
 game = Game()
 
 
-class TextureRenderer(sdl2.ext.TextureSpriteRenderSystem):
+class SpritesheetRenderer(sdl2.ext.TextureSpriteRenderSystem):
     def __init__(self, window):
-        super().__init__(window)
+        super(SpritesheetRenderer, self).__init__(window)
+        # self.previous_tick = sdl2.SDL_GetTicks()
+        self.frame = 0
 
-    def render(self, comps):
+    def render(self, sprites):
         self._renderer.clear()
-        super().render(comps)
+        # sdl2.render.SDL_RenderClear(self.sdlrenderer)
+        rcopy = sdl2.render.SDL_RenderCopyEx
+        renderer = self.sdlrenderer
+        r = sdl2.rect.SDL_Rect(0, 0, 0, 0)
+        for sprite in sprites:
+            if sprite.size[0] > 100:
+                ticks = sdl2.SDL_GetTicks()
+                self.frame = int(ticks / 100 % 12)
+
+                sdl2.render.SDL_SetTextureBlendMode(sprite.texture,
+                                                    sdl2.blendmode.SDL_BLENDMODE_ADD)
+                rcopy(renderer, sprite.texture,
+                      sdl2.rect.SDL_Rect(round(self.frame) * 65, 0, 65, 65),
+                      sdl2.rect.SDL_Rect(sprite.x, sprite.y, 65, 65),
+                      sprite.angle, sprite.center, sprite.flip)
+            else:
+                r.x = sprite.x
+                r.y = sprite.y
+                r.w, r.h = sprite.size
+                rcopy(renderer, sprite.texture,
+                      None, r, sprite.angle,
+                      sprite.center, sprite.flip)
+        sdl2.render.SDL_RenderPresent(self.sdlrenderer)
 
 
 class MovementSystem(sdl2.ext.Applicator):
