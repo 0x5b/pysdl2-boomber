@@ -25,7 +25,7 @@ class Player(Moveable):
     def __init__(self, world, sprite, posx, posy):
         super(Player, self).__init__(world, sprite, posx, posy)
 
-        self.playerdata = components.PlayerData(ai=False)
+        self.playerdata = components.PlayerData()
         self.controldata = components.ControlData()
 
 
@@ -33,7 +33,8 @@ class Enemy(Moveable):
     def __init__(self, world, sprite, posx, posy):
         super(Enemy, self).__init__(world, sprite, posx, posy)
 
-        self.playerdata = components.PlayerData(ai=True)
+        self.aidata = components.AIData()
+        self.animationdata = components.AnimationData()
 
 
 class Block(Tile):

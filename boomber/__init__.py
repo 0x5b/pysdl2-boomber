@@ -10,7 +10,7 @@ from boomber.entities import (
     Explosion,
     Player,
 )
-from boomber.resources.textures import TextureSpriteFactory, step
+from boomber.sprites import SpriteFactory, tile_size
 
 
 class Game:
@@ -35,23 +35,22 @@ class Game:
                                                 size=(1335, 900))
         self.world = sdl2.ext.World()
         self.systems = systems or {}
-        self.sprite_factory = TextureSpriteFactory(
-            self.systems.get("spriterenderer"))
+        self.sfactory = SpriteFactory(self.systems.get("spriterenderer"))
 
         for system in self.systems.values():
             self.world.add_system(system)
 
     def plant_bomb(self, x, y):
         if len(self.bombs) < self.player.playerdata.max_bombs:
-            sp_bomb = self.sprite_factory.get_texture("bomb.png")
-            self.bombs.append(Bomb(self.world, sp_bomb, x, y))
+            sprite = self.sfactory.bomb()
+            self.bombs.append(Bomb(self.world, sprite, x, y))
 
     def explode(self, center_x, center_y):
         for r in range(1, self.player.playerdata.max_range + 1):
-            for x, y in ((-step * r, 0), (0, -step * r),
-                         (step * r, 0), (0, step * r), (0, 0)):
-                sp_explosion = self.sprite_factory.get_color_texture("yellow")
-                e = Explosion(self.world, sp_explosion,
+            for x, y in ((-tile_size * r, 0), (0, -tile_size * r),
+                         (tile_size * r, 0), (0, tile_size * r), (0, 0)):
+                sprite = self.sfactory.explosion()
+                e = Explosion(self.world, sprite,
                               center_x + x, center_y + y)
                 self.explosion_area.append(e)
 
@@ -96,10 +95,8 @@ class Game:
         return 0
 
     def create_map(self, level):
-
-        velocity = [(-3, 0), (0, 4), (-4, 0), (0, 4), (-5, 0), (0, 4)]
+        velocity = [(3, 0), (0, 3), (3, 0), (0, 3), (3, 0), (0, 3)]
         start_position = 50
-        step = 65
 
         path = os.path.join("boomber", "resources", "levels", str(level))
         if not os.path.exists(path):
@@ -111,26 +108,30 @@ class Game:
                 x = start_position
                 for ch in line:
                     if ch == "x":
-                        Block(self.world,
-                              self.sprite_factory.get_texture("wall.png"),
-                              x, y, False)
-                    if ch == "b":
-                        Block(self.world,
-                              self.sprite_factory.get_texture("block.png"),
-                              x, y, True)
-                    if ch == "p":
-                        self.player = Player(
-                            self.world,
-                            self.sprite_factory.get_texture("idle.png"), x, y)
-                    if ch == "e":
+                        sprite = self.sfactory.wall()
+                        Block(self.world, sprite, x, y, False)
+                    elif ch == "b":
+                        sprite = self.sfactory.block()
+                        Block(self.world, sprite, x, y, True)
+                    elif ch == "p":
+                        sprite = self.sfactory.player()
+                        self.player = Player(self.world, sprite, x, y)
+                    elif ch == "e":
                         vx, vy = velocity.pop(0)
-                        if vy == 0:
-                            sp_enemy = self.sprite_factory.get_texture("right.png")
-                        else:
-                            sp_enemy = self.sprite_factory.get_texture("down.png")
-                        enemy = Enemy(self.world, sp_enemy, x, y)
+                        sprite = self.sfactory.enemy()
+                        enemy = Enemy(self.world, sprite, x, y)
                         enemy.velocity.vx, enemy.velocity.vy = vx, vy
+
+                        right = self.sfactory.tfactory.get_texture("right.png")
+                        left = self.sfactory.tfactory.get_texture("left.png")
+                        down = self.sfactory.tfactory.get_texture("down.png")
+                        up = self.sfactory.tfactory.get_texture("up.png")
+                        enemy.animationdata.right = right
+                        enemy.animationdata.left = left
+                        enemy.animationdata.down = down
+                        enemy.animationdata.up = up
+
                         self.enemies.append(enemy)
-                    x += step
-                y += step
+                    x += tile_size
+                y += tile_size
         return True
