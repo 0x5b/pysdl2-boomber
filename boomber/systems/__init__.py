@@ -14,24 +14,47 @@ from boomber.components import (
     ControlData,
     DestroyData,
     PlayerData,
+    SpriteAnimationData,
     Timer,
     Velocity,
 )
 from boomber.entities import Enemy
-from boomber.sprites import MutableTextureSprite, step
+from boomber.sprites import MutableTextureSprite, step, tile_size
 
 
 game = Game()
 
 
 class TextureRenderer(sdl2.ext.TextureSpriteRenderSystem):
+    """Common renderer system, that supports spritesheet animation."""
+
     def __init__(self, window):
         super().__init__(window)
         self.componenttypes = (MutableTextureSprite,)
 
-    def render(self, comps):
+    def render(self, sprites):
         self._renderer.clear()
-        super().render(comps)
+        rcopy = sdl2.render.SDL_RenderCopyEx
+        renderer = self.sdlrenderer
+        for sprite in sprites:
+            if sprite.frame is not None:
+                sdl2.render.SDL_SetTextureBlendMode(sprite.texture,
+                                                    sdl2.blendmode.SDL_BLENDMODE_ADD)
+                rcopy(renderer, sprite.texture,
+                      sdl2.rect.SDL_Rect(sprite.frame * tile_size, 0,
+                                         tile_size, tile_size),
+                      sdl2.rect.SDL_Rect(sprite.x, sprite.y,
+                                         tile_size, tile_size),
+                      sprite.angle, sprite.center, sprite.flip)
+            else:
+                r = sdl2.rect.SDL_Rect(0, 0, 0, 0)
+                r.x = sprite.x
+                r.y = sprite.y
+                r.w, r.h = sprite.size
+                rcopy(renderer, sprite.texture,
+                      None, r, sprite.angle,
+                      sprite.center, sprite.flip)
+        sdl2.render.SDL_RenderPresent(self.sdlrenderer)
 
 
 class MovementSystem(sdl2.ext.Applicator):
@@ -161,6 +184,27 @@ class AnimationSystem(sdl2.ext.Applicator):
                 sprite.texture = animdata.down
             if velocity.vy < 0:
                 sprite.texture = animdata.up
+
+
+class SpriteAnimationSystem(sdl2.ext.Applicator):
+    def __init__(self):
+        super().__init__()
+        self.componenttypes = sdl2.ext.Sprite, SpriteAnimationData, DestroyData
+
+    def process(self, world, componentsets):
+        for sprite, animdata, destroydata in componentsets:
+            if animdata.previous_tick is None:
+                animdata.previous_tick = sdl2.SDL_GetTicks()
+                sprite.frame = animdata.current_frame
+            elif animdata.current_frame == 11:
+                destroydata.is_alive = False
+                animdata.current_frame = 0
+            else:
+                ticks = sdl2.SDL_GetTicks()
+                if (ticks - animdata.previous_tick) > animdata.delta:
+                    animdata.current_frame += 1
+                    animdata.previous_tick = ticks
+                sprite.frame = animdata.current_frame
 
 
 class AIController(sdl2.ext.Applicator):

@@ -14,12 +14,13 @@ def run():
 
     game_systems = {}
     game_systems["timer_system"] = systems.TimerCallbackSystem()
-    game_systems["destroy_system"] = systems.DestroySystem()
     game_systems["movement_system"] = systems.MovementSystem()
     game_systems["collision_system"] = systems.CollisionSystem()
     game_systems["control_system"] = systems.ControlSystem()
     game_systems["animation_system"] = systems.AnimationSystem()
+    game_systems["spriteanimation_system"] = systems.SpriteAnimationSystem()
     game_systems["ai_system"] = systems.AIController()
+    game_systems["destroy_system"] = systems.DestroySystem()
     game_systems["spriterenderer"] = systems.TextureRenderer(window)
 
     game = Game(window=window, systems=game_systems)

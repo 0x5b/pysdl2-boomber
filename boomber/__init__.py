@@ -46,12 +46,13 @@ class Game:
             self.bombs.append(Bomb(self.world, sprite, x, y))
 
     def explode(self, center_x, center_y):
-        for r in range(1, self.player.playerdata.max_range + 1):
+        for r in range(1, self.player.playerdata.max_range * 2 + 1):
+            r = r / 2.0
             for x, y in ((-tile_size * r, 0), (0, -tile_size * r),
                          (tile_size * r, 0), (0, tile_size * r), (0, 0)):
                 sprite = self.sfactory.explosion()
                 e = Explosion(self.world, sprite,
-                              center_x + x, center_y + y)
+                              center_x + round(x), center_y + round(y))
                 self.explosion_area.append(e)
 
     def process(self):

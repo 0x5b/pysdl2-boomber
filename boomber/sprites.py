@@ -19,6 +19,7 @@ class MutableTextureSprite(sdl2.ext.Sprite):
         super().__init__()
 
         self.texture = texture
+        self.frame = None
         self.angle = 0.0
         self.flip = sdl2.render.SDL_FLIP_NONE
         self._size = tile_size, tile_size
@@ -50,8 +51,8 @@ class SpriteFactory:
         return MutableTextureSprite(t)
 
     def explosion(self):
-        c = self.tfactory.get_color_texture("yellow")
-        return MutableTextureSprite(c)
+        t = self.tfactory.get_texture("explosion.png")
+        return MutableTextureSprite(t)
 
     def wall(self):
         t = self.tfactory.get_texture("wall.png")

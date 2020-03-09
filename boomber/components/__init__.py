@@ -53,3 +53,10 @@ class AnimationData:
         self.down = None
         self.left = None
         self.up = None
+
+
+class SpriteAnimationData:
+    def __init__(self):
+        self.current_frame = 0
+        self.previous_tick = None
+        self.delta = 25

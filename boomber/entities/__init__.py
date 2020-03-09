@@ -61,7 +61,6 @@ class Explosion(Tile):
     def __init__(self, world, sprite, posx, posy):
         super(Explosion, self).__init__(world, sprite, posx, posy)
 
-        self.timer = components.Timer(0.1)
-        self.timer.callback = "delete"
+        self.spriteanimationdata = components.SpriteAnimationData()
         self.destroydata = components.DestroyData()
         self.destroydata.entity = self
