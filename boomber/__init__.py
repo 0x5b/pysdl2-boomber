@@ -9,6 +9,7 @@ from boomber.entities import (
     Enemy,
     Explosion,
     Player,
+    Tile,
 )
 from boomber.sprites import SpriteFactory, tile_size
 
@@ -102,6 +103,9 @@ class Game:
         path = os.path.join("boomber", "resources", "levels", str(level))
         if not os.path.exists(path):
             return False
+
+        sprite = self.sfactory.background()
+        Tile(self.world, sprite, start_position, start_position)
 
         with open(path) as f:
             y = start_position

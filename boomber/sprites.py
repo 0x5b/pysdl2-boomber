@@ -36,6 +36,10 @@ class MutableTextureSprite(sdl2.ext.Sprite):
     def size(self):
         return self._size
 
+    @size.setter
+    def size(self, value):
+        self._size = value
+
     @property
     def center(self):
         return self._center
@@ -69,6 +73,13 @@ class SpriteFactory:
     def enemy(self):
         t = self.tfactory.get_texture("right.png")
         return MutableTextureSprite(t)
+
+    def background(self):
+        t = self.tfactory.get_texture("background.png")
+        s = MutableTextureSprite(t)
+        # TODO: remove hardcode size...
+        s.size = (1235, 715)
+        return s
 
 
 class TextureFactory(sdl2.ext.SpriteFactory):
